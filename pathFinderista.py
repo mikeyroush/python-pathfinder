@@ -11,8 +11,10 @@ class pathFinder(Scene):
 		strokeColor = 'white'
 		self.fillColor = '#1768ff'
 		self.pathColor = '#127f00'
+		self.obstacleColor = adjustColor(self.fillColor,0.5)
 		boardDims = (20,20)
 		self.background_color = self.fillColor
+		self.debug = False
 		
 		#build board
 		self.board = Board(boardDims,self.fillColor,stroke_color=strokeColor,parent=self)
@@ -49,30 +51,40 @@ class pathFinder(Scene):
 	def touch_ended(self,touch):
 		if self.startButton.active and not self.startButton.locked:
 			self.startButton.release()
-			#add locked spaces to pathfinder closeSet
+			#add locked spaces to pathfinder obstacleSet
 			for row in self.board.spaces:
 				for space in row:
 					if space.locked:
 						(j,i) = space.index
 						spot = self.pathfinder.grid[j][i]
-						self.pathfinder.closeSet.append(spot)
+						self.pathfinder.obstacleSet.append(spot)
 			#lock start button
 			self.startButton.lock()
 		
 	def touch_moved(self,touch):
 		if not self.startButton.locked:
-			self.board.isSpacePressed(touch)
+			self.board.isSpacePressed(touch,self.obstacleColor)
 		
 		
 	def update(self):
 		if self.startButton.locked and len(self.pathfinder.openSet) > 0:
+			#take a step
 			self.pathfinder.takeStep()
-			for spot in self.pathfinder.openSet:
-				self.board.selectSpace(spot.index, adjustColor(self.fillColor,0.8))
-				
-			for spot in self.pathfinder.closeSet:
-				self.board.selectSpace(spot.index, adjustColor(self.fillColor,1.2))
 			
+			#if debug is on, show openSet and closeSet blocks
+			if self.debug:
+				for spot in self.pathfinder.openSet:
+					self.board.selectSpace(spot.index, adjustColor(self.fillColor,0.8))
+					
+				for spot in self.pathfinder.closeSet:
+					self.board.selectSpace(spot.index, adjustColor(self.fillColor,1.2))
+			else:
+				for row in self.board.spaces:
+					for space in row:
+						if not space.locked:
+							space.fillColor(self.fillColor)
+			
+			#show optimal path
 			for spot in self.pathfinder.path:
 				self.board.selectSpace(spot.index,self.pathColor)
 		

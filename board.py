@@ -36,10 +36,12 @@ class Space(ShapeNode):
 		mainFont = ('Helvetica', min(self.size.w,self.size.h)*0.9)
 		self.charactar.font = mainFont
 		
-	def isPressed(self,point):
+	def isPressed(self,point,color=None):
 		pressed = isTouched(self,point)
 		if pressed:
-			self.fillColor(adjustColor(self.defaultColor,1.2), True)
+			if not color:
+				color = adjustColor(self.defaultColor,1.2)
+			self.fillColor(color, True)
 		return pressed
 		
 	def fillColor(self, color, locked=False, char=""):
@@ -78,12 +80,12 @@ class Board(ShapeNode):
 			for space in row:
 				space.moveAndScale()
 		
-	def isSpacePressed(self,touch):
+	def isSpacePressed(self,touch,color):
 		#human interaction with spaces
 		point = self.point_from_scene(touch.location)
 		for row in self.spaces:
 			for space in row:
-				if space.isPressed(point):
+				if space.isPressed(point,color):
 					break
 			
 	def selectSpace(self,index,color):
