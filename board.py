@@ -52,6 +52,7 @@ class Space(ShapeNode):
 	def clear(self):
 		self.charactar.text = self.startCharacter
 		self.fill_color = self.defaultColor
+		self.locked = False
 		
 		
 class Board(ShapeNode):
@@ -98,3 +99,9 @@ class Board(ShapeNode):
 		for row in self.spaces:
 			for space in row:
 				space.clear()
+				
+	def clearUnlockedSpaces(self):
+		for row in self.spaces:
+			for space in row:
+				if not space.locked:
+					space.clear()

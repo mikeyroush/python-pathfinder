@@ -12,22 +12,21 @@ class pathFinder(Scene):
 		self.fillColor = '#1768ff'
 		self.pathColor = '#127f00'
 		self.obstacleColor = adjustColor(self.fillColor,0.5)
-		boardDims = (20,20)
+		self.boardDims = (30,30)
 		self.background_color = self.fillColor
-		self.debug = False
+		self.debug = True
 		
 		#build board
-		self.board = Board(boardDims,self.fillColor,stroke_color=strokeColor,parent=self)
+		self.board = Board(self.boardDims,self.fillColor,stroke_color=strokeColor,parent=self)
 		
 		#build pathfinder
-		self.pathfinder = PathFinder(boardDims)
+		self.pathfinder = PathFinder(self.boardDims)
 		
 		#build start button
 		self.startButton = Button('Start',adjustColor(self.fillColor,0.75),stroke_color=strokeColor,parent=self)
 		
 		#place elements
 		self.moveAndScale()
-		
 		
 	def moveAndScale(self):
 		#move and scale board
@@ -49,17 +48,26 @@ class pathFinder(Scene):
 		
 		
 	def touch_ended(self,touch):
-		if self.startButton.active and not self.startButton.locked:
-			self.startButton.release()
-			#add locked spaces to pathfinder obstacleSet
-			for row in self.board.spaces:
-				for space in row:
-					if space.locked:
-						(j,i) = space.index
-						spot = self.pathfinder.grid[j][i]
-						self.pathfinder.obstacleSet.append(spot)
-			#lock start button
-			self.startButton.lock()
+		if self.startButton.active:
+			#if button is not locked, find path
+			if not self.startButton.locked:
+				self.startButton.release("Restart")
+				#add locked spaces to pathfinder obstacleSet
+				for row in self.board.spaces:
+					for space in row:
+						if space.locked:
+							(j,i) = space.index
+							spot = self.pathfinder.grid[j][i]
+							self.pathfinder.obstacleSet.append(spot)
+				#lock start button
+				self.startButton.lock()
+			#otherwise, restart
+			else:
+				self.startButton.unlock()
+				self.startButton.release("Start")
+				self.pathfinder = PathFinder(self.boardDims)
+				self.board.clearSpaces()
+				
 		
 	def touch_moved(self,touch):
 		if not self.startButton.locked:
@@ -79,10 +87,7 @@ class pathFinder(Scene):
 				for spot in self.pathfinder.closeSet:
 					self.board.selectSpace(spot.index, adjustColor(self.fillColor,1.2))
 			else:
-				for row in self.board.spaces:
-					for space in row:
-						if not space.locked:
-							space.fillColor(self.fillColor)
+				self.board.clearUnlockedSpaces()
 			
 			#show optimal path
 			for spot in self.pathfinder.path:

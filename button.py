@@ -10,7 +10,7 @@ class Button(ShapeNode):
 		#change fill color
 		self.fill_color = self.defaultColor
 		self.id = id
-		self.text = LabelNode(str(id),parent=self)
+		self.label = LabelNode(str(id),parent=self)
 		self.active = False
 		self.locked = False
 		
@@ -25,7 +25,7 @@ class Button(ShapeNode):
 		#scale fontSize
 		fontSize = w/len(str(self.id))
 		font = ('Helvetica', fontSize)
-		self.text.font = font
+		self.label.font = font
 		
 	def isPressed(self,point):
 		pressed = isTouched(self,point)
@@ -34,9 +34,14 @@ class Button(ShapeNode):
 			self.fill_color = adjustColor(self.defaultColor,0.75)
 		return pressed
 			
-	def release(self):
+	def release(self,char=None):
 		self.fill_color = self.defaultColor
 		self.active = False
+		if char:
+			self.label.text = str(char)
 		
 	def lock(self):
 		self.locked = True
+		
+	def unlock(self):
+		self.locked = False
