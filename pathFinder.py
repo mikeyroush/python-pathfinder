@@ -29,7 +29,10 @@ def distanceBetween(pos1,pos2,direct=True):
 		return distanceBetween(pos1,tempPos) + distanceBetween(tempPos,pos2)
 		
 	#pythagorean theorem
-	return round(sqrt(xDiff**2 + yDiff**2),1)
+	return round(sqrt(xDiff**2 + yDiff**2),3)
+	
+def heuristic(dist1, dist2):
+	return dist1*0.9 + dist2*0.1
 
 
 class Spot:
@@ -72,7 +75,9 @@ class PathFinder:
 		for row in self.grid:
 			for spot in row:
 				spot.updateNeighbors(self.grid)
-				spot.h = distanceBetween(spot.index,self.end.index,False)
+				directDistance = distanceBetween(spot.index,self.end.index)
+				indirectDistance = distanceBetween(spot.index,self.end.index,False)
+				spot.h = heuristic(indirectDistance,directDistance)
 		
 	def takeStep(self):
 		#we can keep going

@@ -18,7 +18,7 @@ class pathFinder(Scene):
 		self.obstacleColor = adjustColor(self.fillColor,0.5)
 		self.boardDims = (30,30)
 		self.background_color = self.fillColor
-		self.debug = False
+		self.debug = True
 		
 		#build board
 		self.board = Board(self.boardDims,self.fillColor,stroke_color=strokeColor,parent=self)
