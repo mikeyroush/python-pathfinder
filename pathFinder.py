@@ -1,6 +1,8 @@
 import numpy as np
 from copy import copy
 from math import sqrt, inf
+from statistics import mean
+from operator import sub
 
 def difference(list1,list2):
 	result = [value for value in list1 if value not in list2]
@@ -17,8 +19,7 @@ def distanceBetween(pos1,pos2,direct=True):
 	#initialize vars
 	(y1,x1) = pos1
 	(y2,x2) = pos2
-	xDiff = x2 - x1
-	yDiff = y2 - y1
+	(yDiff,xDiff) = tuple(map(sub,pos2,pos1)) #pos2 - pos1
 	
 	#account for indirect travel
 	if not direct:
@@ -31,9 +32,15 @@ def distanceBetween(pos1,pos2,direct=True):
 	#pythagorean theorem
 	return round(sqrt(xDiff**2 + yDiff**2),3)
 	
-def heuristic(dist1, dist2):
-	return dist1*0.99 + dist2*0.01
-
+def sameDirection(pos1,pos2,pos3):
+	change1 = tuple(map(sub,pos2,pos1)) #pos2 - pos1
+	change2 = tuple(map(sub,pos3,pos2)) #pos3 - pos2
+	return  change1 == change2
+	
+def heuristic(parent,current,neighbor,scale):
+	if parent and sameDirection(parent.index, current.index, neighbor.index):
+		return distanceBetween(current.index,parent.index) - 1/scale
+	return distanceBetween(current.index,neighbor.index)
 
 class Spot:
 	
@@ -58,6 +65,7 @@ class PathFinder:
 	
 	def __init__(self,dimensions):
 		(rows,cols) = dimensions
+		self.scale = mean((rows,cols))
 		#access y (row) then x (col)
 		self.grid = [[Spot((j,i)) for i in range(cols)] for j in range(rows)]
 		
@@ -75,9 +83,10 @@ class PathFinder:
 		for row in self.grid:
 			for spot in row:
 				spot.updateNeighbors(self.grid)
-				directDistance = distanceBetween(spot.index,self.end.index)
-				indirectDistance = distanceBetween(spot.index,self.end.index,False)
-				spot.h = heuristic(indirectDistance,directDistance)
+				#directDistance = distanceBetween(spot.index,self.end.index)
+				#indirectDistance = distanceBetween(spot.index,self.end.index,False)
+				#spot.h = heuristic(indirectDistance,directDistance)
+				spot.h = distanceBetween(spot.index,self.end.index,False)
 		
 	def takeStep(self):
 		#we can keep going
@@ -110,7 +119,7 @@ class PathFinder:
 					self.openSet.append(neighbor)
 					
 				#update neighbor's f and g score
-				tempG = current.g + distanceBetween(current.index,neighbor.index)
+				tempG = current.g + heuristic(current.parent,current,neighbor,self.scale)#distanceBetween(current.index,neighbor.index)
 				if tempG < neighbor.g:
 					neighbor.g = tempG
 					neighbor.f = neighbor.g + neighbor.h
@@ -122,6 +131,6 @@ class PathFinder:
 
 
 #main
-'''pathfinder = PathFinder((5,5))
+pathfinder = PathFinder((5,5))
 while len(pathfinder.openSet) > 0:
-	pathfinder.takeStep()'''
+	pathfinder.takeStep()

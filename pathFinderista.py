@@ -1,5 +1,6 @@
 #todo list
 #add perlin noise generation
+#add resistance to some obstacles
 
 from scene import *
 from pathFinder import *
@@ -7,7 +8,7 @@ from board import *
 from button import *
 from adjustColor import *
 
-class pathFinder(Scene):
+class PathFinderGUI(Scene):
 	
 	def setup(self):
 		#initialize vars
@@ -97,4 +98,4 @@ class pathFinder(Scene):
 			for spot in self.pathfinder.path:
 				self.board.selectSpace(spot.index,self.pathColor)
 		
-run(pathFinder())
+run(PathFinderGUI())
