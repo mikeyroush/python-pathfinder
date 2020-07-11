@@ -1,5 +1,5 @@
 #todo list
-#update path plot
+#update touch detection
 #add perlin noise generation
 
 from scene import *
@@ -18,7 +18,7 @@ class pathFinder(Scene):
 		self.obstacleColor = adjustColor(self.fillColor,0.5)
 		self.boardDims = (30,30)
 		self.background_color = self.fillColor
-		self.debug = True
+		self.debug = False
 		
 		#build board
 		self.board = Board(self.boardDims,self.fillColor,stroke_color=strokeColor,parent=self)
@@ -91,7 +91,8 @@ class pathFinder(Scene):
 				for spot in self.pathfinder.closeSet:
 					self.board.selectSpace(spot.index, adjustColor(self.fillColor,1.2))
 			else:
-				self.board.clearUnlockedSpaces()
+				for spot in difference(self.pathfinder.oldPath,self.pathfinder.path):
+					self.board.selectSpace(spot.index, self.fillColor)
 			
 			#show optimal path
 			for spot in self.pathfinder.path:

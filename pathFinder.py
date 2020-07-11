@@ -66,6 +66,7 @@ class PathFinder:
 		self.closeSet = []
 		self.obstacleSet = []
 		self.path = []
+		self.oldPath = []
 		
 		#update spots neighbors and g scores
 		for row in self.grid:
@@ -80,8 +81,12 @@ class PathFinder:
 			current = self.openSet.pop(getLowestIndex(self.openSet))
 			self.closeSet.append(current)
 				
+			#pop path spots into old path
+			self.oldPath = []
+			while len(self.path) > 0:
+				self.oldPath.append(self.path.pop())
+				
 			#find path to current
-			self.path = [];
 			temp = copy(current)
 			self.path.append(temp)
 			while temp.parent:
