@@ -1,5 +1,4 @@
 #todo list
-#update touch detection
 #add perlin noise generation
 
 from scene import *
@@ -16,7 +15,7 @@ class pathFinder(Scene):
 		self.fillColor = '#ffce1b'
 		self.pathColor = adjustColor(self.fillColor,0.25)
 		self.obstacleColor = adjustColor(self.fillColor,0.5)
-		self.boardDims = (30,30)
+		self.boardDims = (40,40)
 		self.background_color = self.fillColor
 		self.debug = True
 		

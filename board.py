@@ -1,6 +1,7 @@
 from scene import *
 from adjustColor import *
 from touch import *
+from math import ceil,floor
 
 class Space(ShapeNode):
 	def __init__(self,index,sizeFactors,fillColor,*args,**kwargs):
@@ -22,6 +23,7 @@ class Space(ShapeNode):
 		#calculate size
 		w = self.parent.size.w / wFactor
 		h = self.parent.size.h / hFactor
+		self.offset = self.parent.size - (w*wFactor,h*hFactor)
 		
 		#calculate position
 		x = -self.parent.size.w/2 + w/2 + i*w
@@ -58,9 +60,10 @@ class Space(ShapeNode):
 class Board(ShapeNode):
 	def __init__(self,dimensions,fillColor,*args,**kwargs):
 		ShapeNode.__init__(self,*args,**kwargs)
-		(rows,cols) = dimensions
+		self.dimensions = dimensions
+		(rows,cols) = self.dimensions
 		self.fill_color = fillColor
-		self.spaces = [[Space((j,i),dimensions,fillColor,stroke_color=self.stroke_color,parent=self) for i in range(cols)] for j in range(rows)]
+		self.spaces = [[Space((j,i),self.dimensions,fillColor,stroke_color=self.stroke_color,parent=self) for i in range(cols)] for j in range(rows)]
 		self.margin = 40
 		
 	def moveAndScale(self):
@@ -84,10 +87,13 @@ class Board(ShapeNode):
 	def isSpacePressed(self,touch,color):
 		#human interaction with spaces
 		point = self.point_from_scene(touch.location)
-		for row in self.spaces:
-			for space in row:
-				if space.isPressed(point,color):
-					break
+		
+		#calculate index of space
+		offset = self.position - self.size/2
+		(i,j) = (touch.location-offset)/(self.size.w/self.dimensions[0])
+		(i,j) = (floor(i),self.dimensions[0] - floor(j) - 1)
+		if j < self.dimensions[0] and i < self.dimensions[1]:
+			self.spaces[j][i].isPressed(point,color)
 			
 	def selectSpace(self,index,color):
 		#pathfinder interaction with spaces

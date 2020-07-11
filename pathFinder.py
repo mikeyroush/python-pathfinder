@@ -32,7 +32,7 @@ def distanceBetween(pos1,pos2,direct=True):
 	return round(sqrt(xDiff**2 + yDiff**2),3)
 	
 def heuristic(dist1, dist2):
-	return dist1*0.9 + dist2*0.1
+	return dist1*0.99 + dist2*0.01
 
 
 class Spot:
