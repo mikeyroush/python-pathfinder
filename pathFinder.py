@@ -13,11 +13,22 @@ def getLowestIndex(list):
 			lowestIndex = i
 	return lowestIndex
 	
-def distanceBetween(pos1,pos2):
+def distanceBetween(pos1,pos2,direct=True):
+	#initialize vars
 	(y1,x1) = pos1
 	(y2,x2) = pos2
 	xDiff = x2 - x1
 	yDiff = y2 - y1
+	
+	#account for indirect travel
+	if not direct:
+		if abs(xDiff) < abs(yDiff):
+			tempPos = (y1+xDiff, x1+xDiff)
+		else:
+			tempPos = (y1+yDiff, x1+yDiff)
+		return distanceBetween(pos1,tempPos) + distanceBetween(tempPos,pos2)
+		
+	#pythagorean theorem
 	return round(sqrt(xDiff**2 + yDiff**2),1)
 
 
@@ -60,7 +71,7 @@ class PathFinder:
 		for row in self.grid:
 			for spot in row:
 				spot.updateNeighbors(self.grid)
-				spot.h = distanceBetween(spot.index,self.end.index)
+				spot.h = distanceBetween(spot.index,self.end.index,False)
 		
 	def takeStep(self):
 		#we can keep going

@@ -1,3 +1,7 @@
+#todo list
+#update path plot
+#add perlin noise generation
+
 from scene import *
 from pathFinder import *
 from board import *
@@ -9,8 +13,8 @@ class pathFinder(Scene):
 	def setup(self):
 		#initialize vars
 		strokeColor = 'white'
-		self.fillColor = '#1768ff'
-		self.pathColor = '#127f00'
+		self.fillColor = '#ffce1b'
+		self.pathColor = adjustColor(self.fillColor,0.25)
 		self.obstacleColor = adjustColor(self.fillColor,0.5)
 		self.boardDims = (30,30)
 		self.background_color = self.fillColor
