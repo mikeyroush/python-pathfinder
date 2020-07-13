@@ -1,23 +1,25 @@
 #todo list
-#add perlin noise generation
 #add resistance to some obstacles
 
 from scene import *
 from pathFinder import *
 from board import *
+from noise import *
 from button import *
 from adjustColor import *
+from statistics import median
 
 class PathFinderGUI(Scene):
 	
 	def setup(self):
 		#initialize vars
 		strokeColor = 'white'
-		self.fillColor = '#ffce1b'
+		self.fillColor = '#c8cdff'
 		self.pathColor = adjustColor(self.fillColor,0.25)
 		self.obstacleColor = adjustColor(self.fillColor,0.5)
 		self.boardDims = (40,40)
 		self.background_color = self.fillColor
+		self.generateNoise = True
 		self.debug = True
 		
 		#build board
@@ -56,6 +58,18 @@ class PathFinderGUI(Scene):
 			#if button is not locked, find path
 			if not self.startButton.locked:
 				self.startButton.release("Restart")
+				
+				#if there are no obstacles, generate some
+				if self.generateNoise:
+					self.noise = perlinNoise2D(self.boardDims)
+					diff = 0.5 - median([x for row in self.noise for x in row])
+					for j in range(1,self.boardDims[0]-1):
+						for i in range(1,self.boardDims[1]-1):
+							val = self.noise[j][i] + diff
+							#color = adjustColor(self.fillColor,val+0.5)
+							if val > 0.55 or val < 0.45:
+								self.board.selectSpace((j,i),self.obstacleColor,True)
+					
 				#add locked spaces to pathfinder obstacleSet
 				for row in self.board.spaces:
 					for space in row:
@@ -76,6 +90,8 @@ class PathFinderGUI(Scene):
 	def touch_moved(self,touch):
 		if not self.startButton.locked:
 			self.board.isSpacePressed(touch,self.obstacleColor)
+			if self.generateNoise:
+				self.generateNoise = False
 		
 		
 	def update(self):

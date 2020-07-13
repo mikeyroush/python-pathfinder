@@ -1,6 +1,6 @@
 # python-pathfinder
 
-A* pathfinder with pythonista GUI
+A* pathfinder with perlin noise generator and pythonista GUI
 
 ## Getting Started
 
@@ -20,6 +20,8 @@ Examples
 ![New PathFinder](Images/new_pathfinder.png)
 
 ![Solved PathFinder](Images/solved_pathfinder.png)
+
+![Perlin Noise Example](Images/perlin_pathfinder.png)
 
 ## Authors
 

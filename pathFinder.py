@@ -1,4 +1,3 @@
-import numpy as np
 from copy import copy
 from math import sqrt, inf
 from statistics import mean
@@ -14,6 +13,13 @@ def getLowestIndex(list):
 		if spot.f < list[lowestIndex].f:
 			lowestIndex = i
 	return lowestIndex
+	
+def getNeighbors(grid,index,radius,includeSelf=False):
+	(rowIndex,colIndex) = index
+	neighbors = [grid[j][i] for j in range(rowIndex-radius, rowIndex+radius+1) for i in range(colIndex-radius, colIndex+radius+1) if j >= 0 and j < len(grid) and i >= 0 and i < len(grid[0]) and (j,i) != (rowIndex,colIndex)]
+	if includeSelf:
+		neighbors.append(grid[rowIndex][colIndex])
+	return neighbors
 	
 def distanceBetween(pos1,pos2,direct=True):
 	#initialize vars
@@ -39,7 +45,7 @@ def sameDirection(pos1,pos2,pos3):
 	
 def heuristic(parent,current,neighbor,scale):
 	if parent and sameDirection(parent.index, current.index, neighbor.index):
-		return distanceBetween(current.index,parent.index) - 1/scale
+		return distanceBetween(current.index,parent.index)*((scale-1)/scale)**2
 	return distanceBetween(current.index,neighbor.index)
 
 class Spot:
@@ -82,10 +88,8 @@ class PathFinder:
 		#update spots neighbors and g scores
 		for row in self.grid:
 			for spot in row:
-				spot.updateNeighbors(self.grid)
-				#directDistance = distanceBetween(spot.index,self.end.index)
-				#indirectDistance = distanceBetween(spot.index,self.end.index,False)
-				#spot.h = heuristic(indirectDistance,directDistance)
+				#spot.updateNeighbors(self.grid)
+				spot.neighbors = getNeighbors(self.grid,spot.index,1)
 				spot.h = distanceBetween(spot.index,self.end.index,False)
 		
 	def takeStep(self):
@@ -129,8 +133,3 @@ class PathFinder:
 		else:
 			pass
 
-
-#main
-pathfinder = PathFinder((5,5))
-while len(pathfinder.openSet) > 0:
-	pathfinder.takeStep()

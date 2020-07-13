@@ -95,11 +95,11 @@ class Board(ShapeNode):
 		if j < self.dimensions[0] and i < self.dimensions[1]:
 			self.spaces[j][i].isPressed(point,color)
 			
-	def selectSpace(self,index,color):
-		#pathfinder interaction with spaces
+	def selectSpace(self,index,color,lock=False):
+		#computer interaction with spaces
 		(j,i) = index
 		space = self.spaces[j][i]
-		space.fillColor(color)
+		space.fillColor(color,lock)
 				
 	def clearSpaces(self):
 		for row in self.spaces:
