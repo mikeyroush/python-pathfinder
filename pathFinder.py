@@ -1,3 +1,4 @@
+import numpy as np
 from copy import copy
 from math import sqrt, inf
 from statistics import mean
@@ -15,7 +16,7 @@ def getLowestIndex(list):
 	return lowestIndex
 	
 def getNeighbors(grid,index,radius,includeSelf=False):
-	(rowIndex,colIndex) = index
+	(rowIndex,colIndex) = index[:2]
 	neighbors = [grid[j][i] for j in range(rowIndex-radius, rowIndex+radius+1) for i in range(colIndex-radius, colIndex+radius+1) if j >= 0 and j < len(grid) and i >= 0 and i < len(grid[0]) and (j,i) != (rowIndex,colIndex)]
 	if includeSelf:
 		neighbors.append(grid[rowIndex][colIndex])
@@ -23,24 +24,24 @@ def getNeighbors(grid,index,radius,includeSelf=False):
 	
 def distanceBetween(pos1,pos2,direct=True):
 	#initialize vars
-	(y1,x1) = pos1
-	(y2,x2) = pos2
-	(yDiff,xDiff) = tuple(map(sub,pos2,pos1)) #pos2 - pos1
+	(y1,x1,z1) = pos1
+	(y2,x2,z2) = pos2
+	(yDiff,xDiff,zDiff) = tuple(map(sub,pos2,pos1)) #pos2 - pos1
 	
 	#account for indirect travel
 	if not direct:
 		if abs(xDiff) < abs(yDiff):
-			tempPos = (y1+xDiff, x1+xDiff)
+			tempPos = (y1+xDiff, x1+xDiff, z1+zDiff/2)
 		else:
-			tempPos = (y1+yDiff, x1+yDiff)
+			tempPos = (y1+yDiff, x1+yDiff, z1+zDiff/2)
 		return distanceBetween(pos1,tempPos) + distanceBetween(tempPos,pos2)
 		
 	#pythagorean theorem
-	return round(sqrt(xDiff**2 + yDiff**2),3)
+	return round(sqrt(xDiff**2 + yDiff**2 + zDiff**2),3)
 	
 def sameDirection(pos1,pos2,pos3):
-	change1 = tuple(map(sub,pos2,pos1)) #pos2 - pos1
-	change2 = tuple(map(sub,pos3,pos2)) #pos3 - pos2
+	change1 = tuple(map(sub,pos2[:2],pos1[:2])) #pos2 - pos1
+	change2 = tuple(map(sub,pos3[:2],pos2[:2])) #pos3 - pos2
 	return  change1 == change2
 	
 def heuristic(parent,current,neighbor,scale):
@@ -69,11 +70,11 @@ class Spot:
 
 class PathFinder:
 	
-	def __init__(self,dimensions):
-		(rows,cols) = dimensions
+	def __init__(self,array,terrainConsideration):
+		(rows,cols) = (len(array),len(array[0]))
 		self.scale = mean((rows,cols))
 		#access y (row) then x (col)
-		self.grid = [[Spot((j,i)) for i in range(cols)] for j in range(rows)]
+		self.grid = [[Spot((j,i,array[j][i]*terrainConsideration*self.scale)) for i in range(cols)] for j in range(rows)]
 		
 		#start top left with g of 0, end bottom right
 		self.start = self.grid[0][0]
@@ -85,12 +86,17 @@ class PathFinder:
 		self.path = []
 		self.oldPath = []
 		
-		#update spots neighbors and g scores
+		#update spots neighbors and h scores
 		for row in self.grid:
 			for spot in row:
 				#spot.updateNeighbors(self.grid)
 				spot.neighbors = getNeighbors(self.grid,spot.index,1)
 				spot.h = distanceBetween(spot.index,self.end.index,False)
+				
+	@classmethod
+	def fromTuple(cls,tuple):
+		#initialize PathFinder from a tuple
+		return cls([[0 for _ in range(tuple[1])] for _ in range(tuple[0])],0)
 		
 	def takeStep(self):
 		#we can keep going
@@ -123,7 +129,7 @@ class PathFinder:
 					self.openSet.append(neighbor)
 					
 				#update neighbor's f and g score
-				tempG = current.g + heuristic(current.parent,current,neighbor,self.scale)#distanceBetween(current.index,neighbor.index)
+				tempG = current.g + heuristic(current.parent,current,neighbor,self.scale)
 				if tempG < neighbor.g:
 					neighbor.g = tempG
 					neighbor.f = neighbor.g + neighbor.h
@@ -133,3 +139,6 @@ class PathFinder:
 		else:
 			pass
 
+#Main
+#test = PathFinder.fromTuple((5,5))
+#print(np.matrix(test.grid))

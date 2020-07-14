@@ -4,7 +4,7 @@ from math import ceil, log2
 def nextFactorTwo(num):
 	return 2**ceil(log2(num))
 	
-def perlinNoise1D(size):
+def perlinNoise1D(size,scaleFactor=2):
 	length = nextFactorTwo(size)
 	rand = [random() for _ in range(length)]
 	result = [None for _ in rand]
@@ -25,13 +25,13 @@ def perlinNoise1D(size):
 			#add sample to the accumulative noise at scaling factor
 			noise += sample * scale
 			scaleSum += scale
-			scale /= 2
+			scale /= scaleFactor
 		
 		#divide noise by scaleSum to get numbers between 1 and 0
 		result[i] = noise / scaleSum
 	return result[:size]
 	
-def perlinNoise2D(dims):
+def perlinNoise2D(dims,scaleFactor=2):
 	(rows, cols) = dims
 	size = max(nextFactorTwo(rows), nextFactorTwo(cols))
 	rand = [[random() for _ in range(size)] for _ in range(size)]
@@ -58,9 +58,8 @@ def perlinNoise2D(dims):
 				#linearly interpolate across the y and add it to the accumulative noise at scaling factor
 				noise += (blendY*(sampleB-sampleA)+sampleA) * scale
 				scaleSum += scale
-				scale /= 2
+				scale /= scaleFactor
 			
 			#divide noise by scaleSum to get numbers between 1 and 0
 			result[y][x] = noise / scaleSum
 	return  [col[:cols] for col in result[:rows]]
-

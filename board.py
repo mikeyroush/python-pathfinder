@@ -12,6 +12,7 @@ class Space(ShapeNode):
 		self.index = index
 		self.sizeFactors = sizeFactors
 		self.defaultColor = fillColor
+		self.currentColor = self.defaultColor
 		self.fill_color = self.defaultColor
 		self.locked = False
 		
@@ -43,18 +44,23 @@ class Space(ShapeNode):
 		if pressed:
 			if not color:
 				color = adjustColor(self.defaultColor,1.2)
-			self.fillColor(color, True)
+			self.fillColor(color, False, True)
 		return pressed
 		
-	def fillColor(self, color, locked=False, char=""):
+	def fillColor(self, color, save=False, locked=False, char=""):
 		self.locked = locked
-		self.charactar.text = str(char)		
+		self.charactar.text = str(char)	
 		self.fill_color = color
+		if save:
+			self.currentColor = color
 		
 	def clear(self):
 		self.charactar.text = self.startCharacter
 		self.fill_color = self.defaultColor
 		self.locked = False
+		
+	def undoColorChange(self):
+		self.fill_color = self.currentColor
 		
 		
 class Board(ShapeNode):
@@ -93,13 +99,19 @@ class Board(ShapeNode):
 		(i,j) = (touch.location-offset)/(self.size.w/self.dimensions[0])
 		(i,j) = (floor(i),self.dimensions[0] - floor(j) - 1)
 		if j < self.dimensions[0] and i < self.dimensions[1]:
-			self.spaces[j][i].isPressed(point,color)
+			return self.spaces[j][i].isPressed(point,color)
+		return False
 			
-	def selectSpace(self,index,color,lock=False):
+	def selectSpace(self,index,color,save=False,lock=False):
 		#computer interaction with spaces
-		(j,i) = index
+		(j,i) = index[:2]
 		space = self.spaces[j][i]
-		space.fillColor(color,lock)
+		space.fillColor(color,save,lock)
+		
+	def undoSpace(self,index):
+		(j,i) = index[:2]
+		space = self.spaces[j][i]
+		space.undoColorChange()
 				
 	def clearSpaces(self):
 		for row in self.spaces:
