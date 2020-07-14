@@ -17,11 +17,9 @@ Finally, press the play button to play the game
 
 Examples
 
-![New PathFinder](Images/new_pathfinder.png)
-
-![Solved PathFinder](Images/solved_pathfinder.png)
-
 ![Perlin Noise Example](Images/perlin_pathfinder.png)
+
+![Terrain Gen Example](Images/terrain_pathfinder.png)
 
 ## Authors
 
